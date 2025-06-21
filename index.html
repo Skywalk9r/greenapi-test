@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Green API Test</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .left {
+      flex: 1;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+    }
+
+    .right {
+      flex: 1;
+      padding: 20px;
+      background-color: #f7f7f7;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    input, button, textarea, label {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    textarea {
+      height: 90vh;
+      resize: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Левая колонка: ввод -->
+  <div class="left">
+    <h2>Green API</h2>
+
+    <label>ID Instance</label>
+    <input type="text" id="idInstance" placeholder="Введите ID Instance">
+
+    <label>API Token</label>
+    <input type="password" id="apiTokenInstance" placeholder="Введите API Token">
+
+    <button onclick="getSettings()">getSettings</button>
+    <button onclick="getStateInstance()">getStateInstance</button>
+
+    <label>Номер (chatId, например 79001234567@c.us)</label>
+    <input type="text" id="phone" placeholder="79001234567@c.us">
+
+    <label>Сообщение</label>
+    <input type="text" id="message" placeholder="Текст сообщения">
+    <button onclick="sendMessage()">sendMessage</button>
+
+    <label>URL файла</label>
+    <input type="text" id="fileUrl" placeholder="https://example.com/file.jpg">
+
+    <label>Имя файла</label>
+    <input type="text" id="fileName" placeholder="file.jpg">
+    <button onclick="sendFile()">sendFileByUrl</button>
+  </div>
+
+  <!-- Правая колонка: ответ API -->
+  <div class="right">
+    <h2>Ответ API</h2>
+    <textarea id="response" readonly></textarea>
+  </div>
+</div>
+
+<script>
+  function getInstanceParams() {
+    const id = document.getElementById('idInstance').value.trim();
+    const token = document.getElementById('apiTokenInstance').value.trim();
+    return { id, token };
+  }
+
+  function showResponse(data) {
+    document.getElementById('response').value = JSON.stringify(data, null, 2);
+  }
+
+  async function getSettings() {
+    const { id, token } = getInstanceParams();
+    const res = await fetch(`https://api.green-api.com/waInstance${id}/getSettings/${token}`);
+    const data = await res.json();
+    showResponse(data);
+  }
+
+  async function getStateInstance() {
+    const { id, token } = getInstanceParams();
+    const res = await fetch(`https://api.green-api.com/waInstance${id}/getStateInstance/${token}`);
+    const data = await res.json();
+    showResponse(data);
+  }
+
+  async function sendMessage() {
+    const { id, token } = getInstanceParams();
+    const phone = document.getElementById('phone').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    const res = await fetch(`https://api.green-api.com/waInstance${id}/sendMessage/${token}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatId: phone, message })
+    });
+    const data = await res.json();
+    showResponse(data);
+  }
+
+  async function sendFile() {
+    const { id, token } = getInstanceParams();
+    const phone = document.getElementById('phone').value.trim();
+    const url = document.getElementById('fileUrl').value.trim();
+    const name = document.getElementById('fileName').value.trim();
+
+    const res = await fetch(`https://api.green-api.com/waInstance${id}/sendFileByUrl/${token}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatId: phone, urlFile: url, fileName: name })
+    });
+    const data = await res.json();
+    showResponse(data);
+  }
+</script>
+
+</body>
+</html>
